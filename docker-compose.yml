@@ -20,13 +20,6 @@ services:
     networks:
       database-network:
         ipv4_address: ${MASTER_IP}
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1024M
-        reservations:
-          memory: 256M
 
   mysql_slave:
     image: mysql:5.7.22
@@ -48,13 +41,6 @@ services:
     networks:
       database-network:
         ipv4_address: ${SLAVE_IP}
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1024M
-        reservations:
-          memory: 256M
 
 networks:
   database-network:
@@ -62,6 +48,7 @@ networks:
     ipam:
       config:
         - subnet: ${SUBNET}
+
 #Volumes
 volumes:
   masterData:
