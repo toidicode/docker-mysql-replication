@@ -1,0 +1,70 @@
+version: '3'
+services:
+
+  # MySQL Service
+  mysql_master:
+    image: mysql:5.7.22
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "${MASTER_PORT}:3306"
+    volumes:
+      - masterData:/var/lib/mysql
+      - ./config/master/cus.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - ./app:/var/www
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      database-network:
+        ipv4_address: ${MASTER_IP}
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+        reservations:
+          memory: 256M
+
+  mysql_slave:
+    image: mysql:5.7.22
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "${SLAVE_PORT}:3306"
+    volumes:
+      - slaveData:/var/lib/mysql
+      - ./config/slave/cus.cnf:/etc/mysql/conf.d/cus.cnf
+      - ./app:/var/www
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    depends_on:
+      - mysql_master
+    networks:
+      database-network:
+        ipv4_address: ${SLAVE_IP}
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+        reservations:
+          memory: 256M
+
+networks:
+  database-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${SUBNET}
+#Volumes
+volumes:
+  masterData:
+    driver: local
+  slaveData:
+      driver: local

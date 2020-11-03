@@ -1,0 +1,7 @@
+[mysqld]
+bind-address = 172.30.0.3
+server-id = 2
+
+log-bin
+binlog-format=row
+transaction-isolation=read-committed
